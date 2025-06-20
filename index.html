@@ -1,0 +1,1687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AE Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8 px-[150px]">
+ <!-- Summary Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="card bg-white rounded-lg shadow-md p-6 border-l-4 border-[#00857C]">
+        <h2 class="text-lg font-semibold text-gray-700 mb-2">AE Self Assessment</h2>
+        <div class="flex items-end justify-between">
+            <div class="text-3xl font-bold text-[#00857C]" id="self-assessment-percentage">0%</div>
+            <div class="text-sm text-gray-500" id="self-assessment-count">0/0 completed</div>
+        </div>
+        <div class="w-full bg-gray-200 rounded-fFull h-2.5 mt-3">
+            <div class="bg-[#00857C] h-2.5 rounded-full" id="self-assessment-progress" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <div class="card bg-white rounded-lg shadow-md p-6 border-l-4 border-[#00857C]">
+        <h2 class="text-lg font-semibold text-gray-700 mb-2">Director Assessment</h2>
+        <div class="flex items-end justify-between">
+            <div class="text-3xl font-bold text-[#00857C]" id="manager-assessment-percentage">0%</div>
+            <div class="text-sm text-gray-500" id="manager-assessment-count">0/0 completed</div>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-2.5 mt-3">
+            <div class="bg-[#00857C] h-2.5 rounded-full" id="manager-assessment-progress" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <div class="card bg-white rounded-lg shadow-md p-6 border-l-4 border-[#00857C]">
+        <h2 class="text-lg font-semibold text-gray-700 mb-2">Overall Completion <br><span class="text-xs text-gray-500">(Both self and director assessments completed)</span></h2>
+        <div class="flex items-end justify-between">
+            <div class="text-3xl font-bold text-[#00857C]" id="overall-percentage">0%</div>
+            <div class="text-sm text-gray-500" id="overall-count">0/0 completed</div>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-2.5 mt-3">
+            <div class="bg-[#00857C] h-2.5 rounded-full" id="overall-progress" style="width: 0%"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Search Bar -->
+<div class="bg-white rounded-lg shadow-md p-6 mb-6">
+    <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+            </svg>
+        </div>
+        <input id="search-input" type="text" class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-[#00857C] focus:border-[#00857C] sm:text-sm" placeholder="Search by AE name, director, or Business Unit...">
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="bg-white rounded-lg shadow-md p-6 mb-8">
+    <h2 class="text-lg font-semibold text-gray-700 mb-4">Filters</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div>
+            <label for="status-filter" class="block text-sm font-medium text-gray-700 mb-1">Assessment Status</label>
+            <select id="status-filter" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-[#00857C] focus:border-[#00857C]">
+                <option value="all">All</option>
+                <option value="complete">Complete</option>
+                <option value="in-progress">In Progress</option>
+                <option value="not-started">Not Started</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="bu-filter" class="block text-sm font-medium text-gray-700 mb-1">BU</label>
+            <select id="bu-filter" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-[#00857C] focus:border-[#00857C]">
+                <option value="all">All Business Units</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="director-filter" class="block text-sm font-medium text-gray-700 mb-1">Director</label>
+            <select id="director-filter" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-[#00857C] focus:border-[#00857C]">
+                <option value="all">All Directors</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- AE List Table -->
+<div class="bg-white rounded-lg shadow-md overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">AE Name</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Director Name</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">BU</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">AE Self Assessment</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Director Assessment</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Overall Status</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200" id="ae-table-body">
+                <!-- Table rows will be populated by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+    <div id="no-results" class="hidden p-8 text-center text-gray-500">
+        No matching records found
+    </div>
+</div>
+
+<script>
+    // Sample data
+    const aeData = 
+[
+  {
+    AE: "Bryan Martinez",
+    Director: "Michael Bagwell",
+    Business_Unit: "IAM",
+    selfAssessment: "complete",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Ryan Attleson",
+    Director: "Michael Bagwell",
+    Business_Unit: "IAM",
+    selfAssessment: "complete",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "James G Kelly",
+    Director: "Michael Bagwell",
+    Business_Unit: "IAM",
+    selfAssessment: "complete",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Donna Daniel",
+    Director: "Michael Bagwell",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Jillian Sorrentino",
+    Director: "Michael Bagwell",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Tamara Ciner",
+    Director: "Michael Bagwell",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Andrea Schmoel",
+    Director: "Michael Bagwell",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Laura Chisman",
+    Director: "Robert Baranick",
+    Business_Unit: "IAM",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "John Stone",
+    Director: "Robert Baranick",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Marcus Crawford",
+    Director: "Robert Baranick",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Jerry Lubben",
+    Director: "Robert Baranick",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Karen Kodanko",
+    Director: "Robert Baranick",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Randall Roth",
+    Director: "Robert Baranick",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Ann Marie Mcauliffe",
+    Director: "Robert Baranick",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Callie Zampetis",
+    Director: "Robert Baranick",
+    Business_Unit: "IAM",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Darlene Halverson",
+    Director: "Dave Riepe",
+    Business_Unit: "IAM",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Annemarie Pedersen",
+    Director: "Dave Riepe",
+    Business_Unit: "IAM",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Harry Herar",
+    Director: "Dave Riepe",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Kristin Smith",
+    Director: "Dave Riepe",
+    Business_Unit: "IAM",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Melanie Lamarche",
+    Director: "Dave Riepe",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Mysti Horwath",
+    Director: "Dave Riepe",
+    Business_Unit: "IAM",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Bridget Sullivan",
+    Director: "Dave Riepe",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Grace Pelkowski",
+    Director: "Vanessa Hurliman",
+    Business_Unit: "IAM",
+    selfAssessment: "complete",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "John Dover",
+    Director: "Vanessa Hurliman",
+    Business_Unit: "IAM",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Cathy Prine",
+    Director: "Vanessa Hurliman",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Chris Ross",
+    Director: "Vanessa Hurliman",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Daniel Duke",
+    Director: "Vanessa Hurliman",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Ricki Roberson",
+    Director: "Vanessa Hurliman",
+    Business_Unit: "IAM",
+    selfAssessment: "complete",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Brent Parker",
+    Director: "Vanessa Hurliman",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Tamara Quarles",
+    Director: "Michael Mullins",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Jennifer Forstner",
+    Director: "Michael Mullins",
+    Business_Unit: "IAM",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Jean Barnett",
+    Director: "Michael Mullins",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Thomas Rossi",
+    Director: "Michael Mullins",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Steven Wilber",
+    Director: "Michael Mullins",
+    Business_Unit: "IAM",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Jason Delk",
+    Director: "Michael Mullins",
+    Business_Unit: "IAM",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Katherine Mcgarrey",
+    Director: "Michael Mullins",
+    Business_Unit: "IAM",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Jim Manning",
+    Director: "Nathan Pichette",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Kimberly Kaloz",
+    Director: "Nathan Pichette",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Joseph Kewley",
+    Director: "Nathan Pichette",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Anne Zenzer",
+    Director: "Nathan Pichette",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Michael Neelon",
+    Director: "Nathan Pichette",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Richard Angeli",
+    Director: "Nathan Pichette",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Kari Schulsinger",
+    Director: "Nathan Pichette",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Scott Ebersol",
+    Director: "Nathan Pichette",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Kevin Ross",
+    Director: "Mike Stabbert",
+    Business_Unit: "IAM",
+    selfAssessment: "complete",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Dana Thomas",
+    Director: "Mike Stabbert",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Ryan Roa",
+    Director: "Mike Stabbert",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Michael J Larivee",
+    Director: "Mike Stabbert",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Derek Hersha",
+    Director: "Mike Stabbert",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Natalie Lindley",
+    Director: "Mike Stabbert",
+    Business_Unit: "IAM",
+    selfAssessment: "complete",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Michael Martinez",
+    Director: "Mike Stabbert",
+    Business_Unit: "IAM",
+    selfAssessment: "complete",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Robert Avis",
+    Director: "Warren Tayes",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Gina Esposito",
+    Director: "Warren Tayes",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Stefanie Schmitz",
+    Director: "Warren Tayes",
+    Business_Unit: "IAM",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Geffrey Bergh",
+    Director: "Warren Tayes",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Joe Reed",
+    Director: "Warren Tayes",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Jennifer Smith",
+    Director: "Warren Tayes",
+    Business_Unit: "IAM",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Robert Cantu",
+    Director: "Warren Tayes",
+    Business_Unit: "IAM",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Melanie Gobourne",
+    Director: "Warren Tayes",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Andrew Metzinger",
+    Director: "Warren Tayes",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Brianj Frisone",
+    Director: "Warren Tayes",
+    Business_Unit: "IAM",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "David Rose",
+    Director: "Javier Storani",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "John Comonitski",
+    Director: "Javier Storani",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Alicia Margoles",
+    Director: "Javier Storani",
+    Business_Unit: "IAM",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "John Durand",
+    Director: "Javier Storani",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Taylor Martin",
+    Director: "Javier Storani",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Paul Carpenter",
+    Director: "Javier Storani",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "G Wigginton",
+    Director: "Javier Storani",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Todd Herman",
+    Director: "Tim Fratus",
+    Business_Unit: "IAM",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Heather Page",
+    Director: "Tim Fratus",
+    Business_Unit: "IAM",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Kristin Edwards",
+    Director: "Tim Fratus",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Stan Merriken",
+    Director: "Tim Fratus",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Nannette Alton-Labus",
+    Director: "Tim Fratus",
+    Business_Unit: "IAM",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Grove Bolger",
+    Director: "Tim Fratus",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Edward Sot",
+    Director: "Tim Fratus",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Daniel Coleman",
+    Director: "Tim Fratus",
+    Business_Unit: "IAM",
+    selfAssessment: "complete",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Corinne Piazza",
+    Director: "Brian Rose",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Glenn Belemjian",
+    Director: "Brian Rose",
+    Business_Unit: "IAM",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Anoop Mansukhani",
+    Director: "Brian Rose",
+    Business_Unit: "IAM",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Jonathan Ijaz",
+    Director: "Brian Rose",
+    Business_Unit: "IAM",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Kathryn Mckeon",
+    Director: "Brian Rose",
+    Business_Unit: "IAM",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Keith Ingstad",
+    Director: "Brian Rose",
+    Business_Unit: "IAM",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Joette Munoz",
+    Director: "Erica Davidovic",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Fran Roberts",
+    Director: "Erica Davidovic",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Douglas Gelatti",
+    Director: "Erica Davidovic",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Carrie Britton",
+    Director: "Erica Davidovic",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Louis Carbajal",
+    Director: "Erica Davidovic",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Tara Barton",
+    Director: "Erica Davidovic",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Jay Shen",
+    Director: "Erica Davidovic",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Andrea Stricklin",
+    Director: "Jeffrey Duffill",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "complete",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Wayne Musum",
+    Director: "Jeffrey Duffill",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "complete",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Pooja Atwal",
+    Director: "Jeffrey Duffill",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "not-started",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Veronica Restrepo Vasquez",
+    Director: "Jeffrey Duffill",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "not-started",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Amy Young",
+    Director: "Jeffrey Duffill",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "complete",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Hala Smith",
+    Director: "Jeffrey Duffill",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "complete",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Waynalyn Deshields",
+    Director: "Jeffrey Duffill",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "complete",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Suan Swenson",
+    Director: "Jeffrey Duffill",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "complete",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Kelly Holland",
+    Director: "Jeffrey Duffill",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "not-started",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Cathy Russell",
+    Director: "Jeffrey Duffill",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "complete",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Molly Ortolani",
+    Director: "Kate Fennell",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "not-started",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Robert Zullo",
+    Director: "Kate Fennell",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "not-started",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Darlene Juliano",
+    Director: "Kate Fennell",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "complete",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Andrew Neno",
+    Director: "Kate Fennell",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "not-started",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Alice Lydon",
+    Director: "Kate Fennell",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "complete",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Gaetano Calafati Jr",
+    Director: "Kate Fennell",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "complete",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Sue Rose",
+    Director: "Kate Fennell",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "not-started",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Laura Ruiz-Martinez",
+    Director: "Michael Gavlak",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Leslie Brunette",
+    Director: "Michael Gavlak",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Chris Golden",
+    Director: "Michael Gavlak",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Michelle Moylanelder",
+    Director: "Michael Gavlak",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Lynn Mckinley",
+    Director: "Michael Gavlak",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Sarah Sawyer",
+    Director: "Michael Gavlak",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Kenneth Simon",
+    Director: "Brian Hawkins",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "not-started",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Patrick Neither",
+    Director: "Brian Hawkins",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "not-started",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Dino Villa",
+    Director: "Brian Hawkins",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "complete",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Ali Broxson",
+    Director: "Brian Hawkins",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "complete",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Jeffrey Hadley",
+    Director: "Brian Hawkins",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "not-started",
+    managerAssessment: "complete"
+  },
+  {
+    AE: "Theodore Scheff",
+    Director: "Thomas Lyon",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Michelle Reeder",
+    Director: "Thomas Lyon",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Annie Laporta",
+    Director: "Thomas Lyon",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Leslie Nodler",
+    Director: "Thomas Lyon",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "James Kemp",
+    Director: "Thomas Lyon",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "James Devins",
+    Director: "Thomas Lyon",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Lisa Hohman",
+    Director: "Thomas Lyon",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Jennifer Bentley",
+    Director: "Thomas Lyon",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Peter Hayek",
+    Director: "Thomas Lyon",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Jane Dantinne",
+    Director: "Thomas Lyon",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Kerry Yamat",
+    Director: "Thomas Lyon",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Kyle Spencer",
+    Director: "Andrew Finkelstein",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Shilpa Kalawadia",
+    Director: "Andrew Finkelstein",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Steven Gardner",
+    Director: "Andrew Finkelstein",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Dawn Conrad",
+    Director: "Andrew Finkelstein",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Paula Novabilski",
+    Director: "Andrew Finkelstein",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Lynnette Nestor",
+    Director: "Andrew Finkelstein",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Melissa Rieflin",
+    Director: "Andrew Finkelstein",
+    Business_Unit: "Vaccines ",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Bill Germond",
+    Director: "Mark Karwowski",
+    Business_Unit: "Oncology",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Andrea Hobbs",
+    Director: "Mark Karwowski",
+    Business_Unit: "Oncology",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Tobey Hoambrecker",
+    Director: "Mark Karwowski",
+    Business_Unit: "Oncology",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Kimberly Kunkleman",
+    Director: "Mark Karwowski",
+    Business_Unit: "Oncology",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Jennifer Neumer",
+    Director: "Mark Karwowski",
+    Business_Unit: "Oncology",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Joseph Yurt",
+    Director: "Mark Karwowski",
+    Business_Unit: "Oncology",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Christopher Gosselin",
+    Director: "Mark Karwowski",
+    Business_Unit: "Oncology",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Jason Monk",
+    Director: "Mark Karwowski",
+    Business_Unit: "Oncology",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Dawn Hansen",
+    Director: "Mark Karwowski",
+    Business_Unit: "Oncology",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Karyn Tomlin",
+    Director: "Robert Murphy",
+    Business_Unit: "Oncology",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Troy Siragusa",
+    Director: "Robert Murphy",
+    Business_Unit: "Oncology",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Sylvia Jacobs",
+    Director: "Robert Murphy",
+    Business_Unit: "Oncology",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Brandon Black",
+    Director: "Robert Murphy",
+    Business_Unit: "Oncology",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Michelleb Mitchell",
+    Director: "Robert Murphy",
+    Business_Unit: "Oncology",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Deborah Bergman",
+    Director: "Robert Murphy",
+    Business_Unit: "Oncology",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Robby Robinson",
+    Director: "Robert Murphy",
+    Business_Unit: "Oncology",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Nikole Austrup-Jones",
+    Director: "Robert Murphy",
+    Business_Unit: "Oncology",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Jasmina Boruta",
+    Director: "Robert Murphy",
+    Business_Unit: "Oncology",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Larry Balone",
+    Director: "Theresa Cohen",
+    Business_Unit: "Oncology",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "John Foster",
+    Director: "Theresa Cohen",
+    Business_Unit: "Oncology",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Alexis Amici",
+    Director: "Theresa Cohen",
+    Business_Unit: "Oncology",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Michele Torelli",
+    Director: "Theresa Cohen",
+    Business_Unit: "Oncology",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Steve Fowler",
+    Director: "Theresa Cohen",
+    Business_Unit: "Oncology",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Tiffany Grand",
+    Director: "Theresa Cohen",
+    Business_Unit: "Oncology",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Thomas Berte",
+    Director: "Theresa Cohen",
+    Business_Unit: "Oncology",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Tara Fleming",
+    Director: "Theresa Cohen",
+    Business_Unit: "Oncology",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Ann Wagner",
+    Director: "Theresa Cohen",
+    Business_Unit: "Oncology",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "David Williams",
+    Director: "Theresa Cohen",
+    Business_Unit: "Oncology",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Douglas Slape",
+    Director: "Theresa Cohen",
+    Business_Unit: "Oncology",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Shandra Harvey Stewart",
+    Director: "Judith Leenguyen",
+    Business_Unit: "Oncology",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Hayley Ludwig",
+    Director: "Judith Leenguyen",
+    Business_Unit: "Oncology",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Maureen Hall",
+    Director: "Judith Leenguyen",
+    Business_Unit: "Oncology",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Randy Benson",
+    Director: "Judith Leenguyen",
+    Business_Unit: "Oncology",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Mark Campbell",
+    Director: "Judith Leenguyen",
+    Business_Unit: "Oncology",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Bree Carlin",
+    Director: "Judith Leenguyen",
+    Business_Unit: "Oncology",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Cecelia Daly",
+    Director: "Judith Leenguyen",
+    Business_Unit: "Oncology",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Christopher Billmann",
+    Director: "Judith Leenguyen",
+    Business_Unit: "Oncology",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Kent Hutchens",
+    Director: "Judith Leenguyen",
+    Business_Unit: "Oncology",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Amy Finn",
+    Director: "Judith Leenguyen",
+    Business_Unit: "Oncology",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Jodi Pergolis",
+    Director: "Judith Leenguyen",
+    Business_Unit: "Oncology",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Mark Barrett",
+    Director: "Latrice Williams",
+    Business_Unit: "Oncology",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "John Towle",
+    Director: "Latrice Williams",
+    Business_Unit: "Oncology",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Andrew Oneil",
+    Director: "Latrice Williams",
+    Business_Unit: "Oncology",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Jeff Kounter",
+    Director: "Latrice Williams",
+    Business_Unit: "Oncology",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Kristin Ngchee",
+    Director: "Latrice Williams",
+    Business_Unit: "Oncology",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Carl Meister",
+    Director: "Latrice Williams",
+    Business_Unit: "Oncology",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Adam Martin",
+    Director: "Latrice Williams",
+    Business_Unit: "Oncology",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "John Costello",
+    Director: "Latrice Williams",
+    Business_Unit: "Oncology",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Joseph Giuliano",
+    Director: "Latrice Williams",
+    Business_Unit: "Oncology",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Marilyn Gonzalez",
+    Director: "Carlos Eduardo Munoz Borrero",
+    Business_Unit: "Puerto Rico Team",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Johnsie Ortiz",
+    Director: "Carlos Eduardo Munoz Borrero",
+    Business_Unit: "Puerto Rico Team",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Lillian Colon",
+    Director: "Carlos Eduardo Munoz Borrero",
+    Business_Unit: "Puerto Rico Team",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Ricardo Rojas",
+    Director: "Carlos Eduardo Munoz Borrero",
+    Business_Unit: "Puerto Rico Team",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Juan Pablo Rosado",
+    Director: "Carlos Eduardo Munoz Borrero",
+    Business_Unit: "Puerto Rico Team",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Alma Guadalupe",
+    Director: "Carlos Eduardo Munoz Borrero",
+    Business_Unit: "Puerto Rico Team",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Mark Montello",
+    Director: "Hari Ravindranathan",
+    Business_Unit: "Oncology",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Claire McSorley",
+    Director: "Hari Ravindranathan",
+    Business_Unit: "Oncology",
+    selfAssessment: "not-started",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Michael Nicolucci",
+    Director: "Hari Ravindranathan",
+    Business_Unit: "Oncology",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Craig R Haubach",
+    Director: "Hari Ravindranathan",
+    Business_Unit: "Oncology",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Kimberley Olmstedkreag",
+    Director: "Hari Ravindranathan",
+    Business_Unit: "Oncology",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "Robert Wiley",
+    Director: "Hari Ravindranathan",
+    Business_Unit: "Oncology",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  },
+  {
+    AE: "John Bousum",
+    Director: "Hari Ravindranathan",
+    Business_Unit: "Oncology",
+    selfAssessment: "complete",
+    managerAssessment: "not-started"
+  }
+]
+
+    // Initialize filters
+    function initializeFilters() {
+        const buFilter = document.getElementById('bu-filter');
+        const directorFilter = document.getElementById('director-filter');
+
+        // Get unique Business_Units
+        const businessUnits = [...new Set(aeData.map(ae => ae.Business_Unit))];
+        businessUnits.forEach(bu => {
+            const option = document.createElement('option');
+            option.value = bu;
+            option.textContent = bu;
+            buFilter.appendChild(option);
+        });
+
+        // Get unique directors
+        const directors = [...new Set(aeData.map(ae => ae.Director))];
+        directors.forEach(director => {
+            const option = document.createElement('option');
+            option.value = director;
+            option.textContent = director;
+            directorFilter.appendChild(option);
+        });
+    }
+
+    // Get status class and label
+    function getStatusDetails(status) {
+        switch(status) {
+            case 'complete':
+                return { class: 'bg-[#00857C] text-white px-4 py-[10px]', label: 'Complete', icon: '✓' };
+            case 'in-progress':
+                return { class: 'bg-black text-white px-4 py-[10px]', label: 'In Progress', icon: '⟳' };
+            case 'not-started':
+                return { class: 'bg-yellow-100 text-gray-500 px-4 py-[10px]', label: 'Not Started', icon: '—' };
+            default:
+                return { class: '', label: status, icon: '' };
+        }
+    }
+
+    // Render AE table rows
+    function renderTable(filteredData) {
+        const tbody = document.getElementById('ae-table-body');
+        tbody.innerHTML = '';
+
+        if(filteredData.length === 0) {
+            document.getElementById('no-results').classList.remove('hidden');
+            return;
+        } else {
+            document.getElementById('no-results').classList.add('hidden');
+        }
+
+        filteredData.forEach(ae => {
+            const selfStatus = getStatusDetails(ae.selfAssessment);
+            const managerStatus = getStatusDetails(ae.managerAssessment);
+
+            // Determine overall status based on self and manager statuses
+            let overallStatus = 'not-started';
+            if(ae.selfAssessment === 'complete' && ae.managerAssessment === 'complete') {
+                overallStatus = 'complete';
+            } else if(ae.selfAssessment === 'not-started' && ae.managerAssessment === 'not-started') {
+                overallStatus = 'not-started';
+            } else {
+                overallStatus = 'in-progress';
+            }
+            const overallStatusDetails = getStatusDetails(overallStatus);
+
+            const row = document.createElement('tr');
+            row.classList.add('hover:bg-gray-50');
+            row.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${ae.AE}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${ae.Director}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${ae.Business_Unit}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${selfStatus.class}">
+                        ${selfStatus.icon} ${selfStatus.label}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${managerStatus.class}">
+                        ${managerStatus.icon} ${managerStatus.label}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${overallStatusDetails.class}">
+                        ${overallStatusDetails.icon} ${overallStatusDetails.label}
+                    </span>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    // Calculate percentages for summary cards
+    function updateSummaryCards(filteredData) {
+        const total = filteredData.length;
+        if(total === 0) {
+            // Reset
+            ['self-assessment', 'manager-assessment', 'overall'].forEach(id => {
+                document.getElementById(`${id}-percentage`).textContent = '0%';
+                document.getElementById(`${id}-count`).textContent = `0/0 completed`;
+                document.getElementById(`${id}-progress`).style.width = '0%';
+            });
+            return;
+        }
+
+        // Self Assessment completed count
+        const selfCompleted = filteredData.filter(ae => ae.selfAssessment === 'complete').length;
+        const selfPercent = Math.round((selfCompleted / total) * 100);
+
+        // Manager Assessment completed count
+        const managerCompleted = filteredData.filter(ae => ae.managerAssessment === 'complete').length;
+        const managerPercent = Math.round((managerCompleted / total) * 100);
+
+        // Overall completed count
+        const overallCompleted = filteredData.filter(ae => ae.selfAssessment === 'complete' && ae.managerAssessment === 'complete').length;
+        const overallPercent = Math.round((overallCompleted / total) * 100);
+
+        // Update self-assessment
+        document.getElementById('self-assessment-percentage').textContent = `${selfPercent}%`;
+        document.getElementById('self-assessment-count').textContent = `${selfCompleted}/${total} completed`;
+        document.getElementById('self-assessment-progress').style.width = `${selfPercent}%`;
+
+        // Update manager-assessment
+        document.getElementById('manager-assessment-percentage').textContent = `${managerPercent}%`;
+        document.getElementById('manager-assessment-count').textContent = `${managerCompleted}/${total} completed`;
+        document.getElementById('manager-assessment-progress').style.width = `${managerPercent}%`;
+
+        // Update overall
+        document.getElementById('overall-percentage').textContent = `${overallPercent}%`;
+        document.getElementById('overall-count').textContent = `${overallCompleted}/${total} completed`;
+        document.getElementById('overall-progress').style.width = `${overallPercent}%`;
+    }
+
+    // Filter data based on search and filters
+   function filterData() {
+    const searchText = document.getElementById('search-input').value.toLowerCase();
+    const statusFilter = document.getElementById('status-filter').value;
+    const buFilter = document.getElementById('bu-filter').value;
+    const directorFilter = document.getElementById('director-filter').value;
+
+    const filtered = aeData.filter(ae => {
+        // Search filter
+        const matchesSearch =
+            ae.AE.toLowerCase().includes(searchText) ||
+            ae.Director.toLowerCase().includes(searchText) ||
+            ae.Business_Unit.toLowerCase().includes(searchText);
+
+        if (!matchesSearch) return false;
+
+        // Determine overall status correctly:
+        let overallStatus = 'not-started';
+        const selfComplete = ae.selfAssessment === 'complete';
+        const managerComplete = ae.managerAssessment === 'complete';
+
+        if (selfComplete && managerComplete) {
+            overallStatus = 'complete';
+        } else if (selfComplete || managerComplete) {
+            overallStatus = 'in-progress';
+        } else {
+            overallStatus = 'not-started';
+        }
+
+        // Now apply the status filter properly:
+        if (statusFilter !== 'all' && overallStatus !== statusFilter) return false;
+
+        // BU filter
+        if (buFilter !== 'all' && ae.Business_Unit !== buFilter) return false;
+
+        // Director filter
+        if (directorFilter !== 'all' && ae.Director !== directorFilter) return false;
+
+        return true;
+    });
+
+    renderTable(filtered);
+    updateSummaryCards(filtered);
+}
+
+    // Initialize page
+    window.addEventListener('DOMContentLoaded', () => {
+        initializeFilters();
+        filterData();
+
+        // Event listeners for filters and search
+        document.getElementById('search-input').addEventListener('input', filterData);
+        document.getElementById('status-filter').addEventListener('change', filterData);
+        document.getElementById('bu-filter').addEventListener('change', filterData);
+        document.getElementById('director-filter').addEventListener('change', filterData);
+    });
+</script>
+</body>
+</html>
